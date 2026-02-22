@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Architecture Diagram – Secure E2E Messaging System</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .page {
+    width: 960px;
+    background: white;
+    border: 2px solid #000;
+    padding: 24px;
+  }
+
+  .doc-title {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+
+  .doc-title h1 {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .doc-title p {
+    font-size: 11px;
+    color: #444;
+    margin-top: 3px;
+  }
+
+  .diagram-wrap { width: 100%; margin-top: 10px; }
+
+  svg { width: 100%; height: auto; }
+
+  @media print {
+    body { padding: 0; }
+    .page { border: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="doc-title">
+    <h1>Secure End-to-End Messaging System — Architecture Diagram</h1>
+    <p>Information Security — Spring 2026 &nbsp;|&nbsp; Course Instructor: Shehryar Raza</p>
+  </div>
+
+  <div class="diagram-wrap">
+  <svg viewBox="0 0 900 680" xmlns="http://www.w3.org/2000/svg">
+
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#000"/>
+      </marker>
+      <marker id="arrDash" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#555"/>
+      </marker>
+    </defs>
+
+    <!-- White background -->
+    <rect width="900" height="680" fill="white"/>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- TLS BOUNDARY BOX -->
+    <!-- ─────────────────────────────────────────── -->
+    <rect x="10" y="210" width="880" height="190" rx="4"
+          fill="none" stroke="#000" stroke-width="1.5" stroke-dasharray="8,4"/>
+    <rect x="290" y="202" width="230" height="16" fill="white"/>
+    <text x="405" y="214" text-anchor="middle"
+          font-family="Courier New" font-size="11" font-weight="bold" fill="#000">
+      [ TLS 1.2+ ENCRYPTED CHANNEL — HTTPS ONLY ]
+    </text>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- CLIENT A — ALICE -->
+    <!-- ─────────────────────────────────────────── -->
+    <rect x="20" y="30" width="200" height="580" rx="3"
+          fill="white" stroke="#000" stroke-width="2"/>
+
+    <!-- Header -->
+    <rect x="20" y="30" width="200" height="28" fill="#000" rx="3"/>
+    <rect x="20" y="46" width="200" height="12" fill="#000"/>
+    <text x="120" y="49" text-anchor="middle"
+          font-family="Courier New" font-size="12" font-weight="bold" fill="white">CLIENT A — ALICE</text>
+    <text x="120" y="62" text-anchor="middle"
+          font-family="Courier New" font-size="9" fill="#ccc">[ SENDER ]</text>
+
+    <!-- Box: RSA Key Pair -->
+    <rect x="30" y="72" width="180" height="52" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="120" y="88" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">RSA-2048 KEY PAIR</text>
+    <text x="120" y="102" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">Private: alice_private.pem</text>
+    <text x="120" y="115" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">Public: uploaded to server</text>
+
+    <!-- Box: Step 1 AES Encrypt -->
+    <rect x="30" y="134" width="180" height="64" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="150" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">(1) AES-256-GCM ENCRYPT</text>
+    <text x="120" y="164" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">aes_key = os.urandom(32)</text>
+    <text x="120" y="177" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">ciphertext, nonce, tag =</text>
+    <text x="120" y="189" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">encrypt_aes_gcm(msg, key)</text>
+
+    <!-- Box: Step 2 RSA Wrap -->
+    <rect x="30" y="208" width="180" height="52" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="224" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">(2) RSA-OAEP WRAP KEY</text>
+    <text x="120" y="238" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">enc_key = rsa_encrypt(</text>
+    <text x="120" y="251" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">  aes_key, bob_pubkey)</text>
+
+    <!-- Box: Session Token -->
+    <rect x="30" y="270" width="180" height="40" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="120" y="286" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">SESSION TOKEN</text>
+    <text x="120" y="301" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">secrets.token_hex(32)</text>
+
+    <!-- Box: Plaintext note -->
+    <rect x="30" y="320" width="180" height="38" fill="#eee" stroke="#000" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="120" y="336" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">PLAINTEXT</text>
+    <text x="120" y="350" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">in Alice's memory only</text>
+
+    <!-- Box: POST /register -->
+    <rect x="30" y="368" width="180" height="36" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="383" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">POST /register</text>
+    <text x="120" y="396" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">username, password, public_key</text>
+
+    <!-- Box: POST /login -->
+    <rect x="30" y="414" width="180" height="36" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="429" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">POST /login</text>
+    <text x="120" y="443" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">credentials → session token</text>
+
+    <!-- Box: POST /send -->
+    <rect x="30" y="460" width="180" height="50" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="476" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">POST /send  (HTTPS)</text>
+    <text x="120" y="490" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">{ enc_key, ciphertext,</text>
+    <text x="120" y="502" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">  nonce, tag }</text>
+
+    <!-- Box: GET /public_key -->
+    <rect x="30" y="520" width="180" height="36" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="120" y="535" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">GET /public_key/bob</text>
+    <text x="120" y="549" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">fetch recipient public key</text>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- SERVER -->
+    <!-- ─────────────────────────────────────────── -->
+    <rect x="350" y="30" width="200" height="580" rx="3"
+          fill="white" stroke="#000" stroke-width="2"/>
+
+    <!-- Header -->
+    <rect x="350" y="30" width="200" height="28" fill="#000" rx="3"/>
+    <rect x="350" y="46" width="200" height="12" fill="#000"/>
+    <text x="450" y="49" text-anchor="middle"
+          font-family="Courier New" font-size="12" font-weight="bold" fill="white">SERVER</text>
+    <text x="450" y="62" text-anchor="middle"
+          font-family="Courier New" font-size="9" fill="#ccc">[ FLASK — HTTPS :5443 ]</text>
+
+    <!-- Password Store -->
+    <rect x="360" y="72" width="180" height="52" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="450" y="88" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">PASSWORD STORE</text>
+    <text x="450" y="102" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">PBKDF2-HMAC-SHA256</text>
+    <text x="450" y="115" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">600K iterations + salt</text>
+
+    <!-- Session Store -->
+    <rect x="360" y="134" width="180" height="38" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="450" y="150" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">SESSION STORE</text>
+    <text x="450" y="164" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">{ token → username } in-memory</text>
+
+    <!-- Public Key Registry -->
+    <rect x="360" y="182" width="180" height="52" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="450" y="198" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">PUBLIC KEY REGISTRY</text>
+    <text x="450" y="212" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">GET /public_key/{username}</text>
+    <text x="450" y="226" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">stores public keys ONLY</text>
+
+    <!-- Message Store -->
+    <rect x="360" y="244" width="180" height="76" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="450" y="260" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">MESSAGE STORE</text>
+    <text x="450" y="274" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">sender, recipient</text>
+    <text x="450" y="287" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">encrypted_key  [OPAQUE]</text>
+    <text x="450" y="300" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">ciphertext     [OPAQUE]</text>
+    <text x="450" y="313" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">nonce, tag</text>
+
+    <!-- ACL -->
+    <rect x="360" y="330" width="180" height="52" fill="#eee" stroke="#000" stroke-width="1.5"/>
+    <text x="450" y="346" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">ACL ENFORCEMENT</text>
+    <text x="450" y="360" text-anchor="middle" font-family="Courier New" font-size="8" fill="#000">if recipient != session_user:</text>
+    <text x="450" y="374" text-anchor="middle" font-family="Courier New" font-size="8" font-weight="bold" fill="#000">    return 403 Forbidden</text>
+
+    <!-- Cannot see -->
+    <rect x="360" y="392" width="180" height="52" fill="white" stroke="#000" stroke-width="1" stroke-dasharray="5,3"/>
+    <text x="450" y="408" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">SERVER CANNOT SEE:</text>
+    <text x="450" y="422" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#333">x  Plaintext messages</text>
+    <text x="450" y="436" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#333">x  AES keys (ever)</text>
+
+    <!-- TLS Cert -->
+    <rect x="360" y="454" width="180" height="64" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="450" y="470" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">TLS CERTIFICATE</text>
+    <text x="450" y="484" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">Self-signed X.509 RSA-2048</text>
+    <text x="450" y="497" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">SAN: 127.0.0.1 / localhost</text>
+    <text x="450" y="510" text-anchor="middle" font-family="Courier New" font-size="8.5" font-weight="bold" fill="#000">Plain HTTP: DISABLED</text>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- CLIENT B — BOB -->
+    <!-- ─────────────────────────────────────────── -->
+    <rect x="680" y="30" width="200" height="580" rx="3"
+          fill="white" stroke="#000" stroke-width="2"/>
+
+    <!-- Header -->
+    <rect x="680" y="30" width="200" height="28" fill="#000" rx="3"/>
+    <rect x="680" y="46" width="200" height="12" fill="#000"/>
+    <text x="780" y="49" text-anchor="middle"
+          font-family="Courier New" font-size="12" font-weight="bold" fill="white">CLIENT B — BOB</text>
+    <text x="780" y="62" text-anchor="middle"
+          font-family="Courier New" font-size="9" fill="#ccc">[ RECEIVER ]</text>
+
+    <!-- RSA Key Pair -->
+    <rect x="690" y="72" width="180" height="52" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="780" y="88" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">RSA-2048 KEY PAIR</text>
+    <text x="780" y="102" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">Private: bob_private.pem</text>
+    <text x="780" y="115" text-anchor="middle" font-family="Courier New" font-size="8.5" fill="#000">Public: uploaded to server</text>
+
+    <!-- GET /messages -->
+    <rect x="690" y="134" width="180" height="38" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="780" y="150" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">GET /messages  (HTTPS)</text>
+    <text x="780" y="164" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">receives encrypted bundle only</text>
+
+    <!-- Step 3 RSA Decrypt -->
+    <rect x="690" y="182" width="180" height="52" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="780" y="198" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">(3) RSA DECRYPT KEY</text>
+    <text x="780" y="212" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">aes_key = rsa_decrypt(</text>
+    <text x="780" y="225" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">  enc_key, bob_priv_key)</text>
+
+    <!-- Step 4 AES Decrypt -->
+    <rect x="690" y="244" width="180" height="64" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="780" y="260" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">(4) AES-256-GCM DECRYPT</text>
+    <text x="780" y="274" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">plaintext = decrypt_aes_gcm(</text>
+    <text x="780" y="287" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">  ciphertext, nonce,</text>
+    <text x="780" y="300" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">  tag, aes_key)</text>
+
+    <!-- Step 5 Display -->
+    <rect x="690" y="318" width="180" height="36" fill="#f5f5f5" stroke="#000" stroke-width="1.5"/>
+    <text x="780" y="334" text-anchor="middle" font-family="Courier New" font-size="10" font-weight="bold" fill="#000">(5) DISPLAY PLAINTEXT</text>
+    <text x="780" y="348" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">Bob's terminal only</text>
+
+    <!-- Private key protection -->
+    <rect x="690" y="364" width="180" height="38" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="780" y="380" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">PRIVATE KEY PROTECTION</text>
+    <text x="780" y="394" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">AES-CBC passphrase on disk</text>
+
+    <!-- ACL -->
+    <rect x="690" y="412" width="180" height="38" fill="#eee" stroke="#000" stroke-width="1.5"/>
+    <text x="780" y="428" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">ACL: 403 IF NOT BOB</text>
+    <text x="780" y="442" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">Alice cannot read Bob's inbox</text>
+
+    <!-- Register/Login -->
+    <rect x="690" y="460" width="180" height="38" fill="white" stroke="#000" stroke-width="1"/>
+    <text x="780" y="476" text-anchor="middle" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">POST /register + /login</text>
+    <text x="780" y="490" text-anchor="middle" font-family="Courier New" font-size="8" fill="#333">same flow as Alice</text>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- ARROWS -->
+    <!-- ─────────────────────────────────────────── -->
+
+    <!-- Alice POST /register → Server -->
+    <line x1="222" y1="386" x2="358" y2="153" stroke="#000" stroke-width="1.2"
+          stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+    <!-- Alice POST /login → Server -->
+    <line x1="222" y1="432" x2="358" y2="153" stroke="#000" stroke-width="1.2"
+          stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+    <!-- Alice GET /public_key → Server (curved above) -->
+    <path d="M 222 535 Q 290 510 358 212" stroke="#000" stroke-width="1.2"
+          fill="none" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+    <rect x="242" y="500" width="94" height="14" fill="white"/>
+    <text x="289" y="511" text-anchor="middle" font-family="Courier New" font-size="8" fill="#000">GET /public_key</text>
+
+    <!-- Alice POST /send → Server (solid, through TLS band) -->
+    <line x1="222" y1="485" x2="358" y2="282" stroke="#000" stroke-width="1.8"
+          marker-end="url(#arr)"/>
+    <rect x="248" y="366" width="72" height="14" fill="white"/>
+    <text x="284" y="376" text-anchor="middle" font-family="Courier New" font-size="8" fill="#000">POST /send</text>
+
+    <!-- Server → Bob: GET /messages response (solid) -->
+    <line x1="542" y1="282" x2="688" y2="208" stroke="#000" stroke-width="1.8"
+          marker-end="url(#arr)"/>
+    <rect x="572" y="233" width="82" height="14" fill="white"/>
+    <text x="613" y="243" text-anchor="middle" font-family="Courier New" font-size="8" fill="#000">GET /messages</text>
+
+    <!-- Bob POST /register → Server -->
+    <line x1="678" y1="479" x2="542" y2="153" stroke="#000" stroke-width="1.2"
+          stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+    <!-- Bob ACL 403 ← Server -->
+    <line x1="542" y1="356" x2="688" y2="431" stroke="#333" stroke-width="1.2"
+          stroke-dasharray="4,3" marker-end="url(#arrDash)"/>
+    <rect x="578" y="382" width="52" height="14" fill="white"/>
+    <text x="604" y="392" text-anchor="middle" font-family="Courier New" font-size="8" fill="#000">403</text>
+
+    <!-- ─────────────────────────────────────────── -->
+    <!-- LEGEND -->
+    <!-- ─────────────────────────────────────────── -->
+    <rect x="20" y="622" width="860" height="48" rx="3"
+          fill="white" stroke="#000" stroke-width="1"/>
+
+    <text x="36" y="638" font-family="Courier New" font-size="9" font-weight="bold" fill="#000">LEGEND:</text>
+
+    <line x1="100" y1="634" x2="130" y2="634" stroke="#000" stroke-width="1.8" marker-end="url(#arr)"/>
+    <text x="135" y="638" font-family="Courier New" font-size="9" fill="#000">Encrypted data flow</text>
+
+    <line x1="280" y1="634" x2="310" y2="634" stroke="#000" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+    <text x="315" y="638" font-family="Courier New" font-size="9" fill="#000">Auth / registration</text>
+
+    <line x1="460" y1="634" x2="490" y2="634" stroke="#333" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrDash)"/>
+    <text x="495" y="638" font-family="Courier New" font-size="9" fill="#000">ACL / 403 response</text>
+
+    <rect x="640" y="627" width="14" height="10" fill="#f5f5f5" stroke="#000" stroke-width="1"/>
+    <text x="658" y="638" font-family="Courier New" font-size="9" fill="#000">Shaded = stored / hashed data</text>
+
+    <!-- second row -->
+    <rect x="100" y="649" width="14" height="10" fill="white" stroke="#000" stroke-width="1" />
+    <text x="118" y="659" font-family="Courier New" font-size="9" fill="#000">White box = live operation / in-memory</text>
+
+    <rect x="380" y="649" width="14" height="10" fill="white" stroke="#000" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="398" y="659" font-family="Courier New" font-size="9" fill="#000">Dashed border = server-blind / client-only</text>
+
+  </svg>
+  </div>
+</div>
+</body>
+</html>
